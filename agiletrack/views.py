@@ -35,7 +35,7 @@ def get_latest_tasks(request, id):
 
 @api_view(['GET'])
 def get_backlogTasks(request, id):
-    tasks = Task.objects.filter(project_id=id, sprint__isnull=True)
+    tasks = Task.objects.filter(project_id=id, sprint__isnull=True).order_by('id')
     tasks_ser = TaskSerializer(tasks, many=True)
     return Response(tasks_ser.data)
 
@@ -46,13 +46,30 @@ def get_sprintList(request, id):
     return Response(sprints_ser.data)
 
 @api_view(['POST'])
-def add_task(request, id):
+def add_task(request):
     task_ser = TaskSerializer(data=request.data)
     if task_ser.is_valid():
         task_ser.save()
-        print("**********************************************")
-        print(request.data)
-        print("**********************************************")
     else:
         print(task_ser.errors)
     return Response(task_ser.data)
+
+@api_view(['PUT'])
+def update_task(request):
+    task_data = request.data
+    task = Task.objects.get(id=task_data['id'])
+    serializer = TaskSerializer(task, data=task_data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    else:
+        return Response(serializer.errors)
+
+@api_view(['DELETE'])
+def delete_task(request, id):
+    try:
+        task = Task.objects.get(pk=id)
+    except Task.DoesNotExist:
+        return Response({'message': 'Task does not exist !'}, status=status.HTTP_404_NOT_FOUND)
+    task.delete()
+    return Response({'message': 'Task deleted successfully'})
