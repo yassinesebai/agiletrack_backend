@@ -2,7 +2,7 @@ from django.shortcuts import render
 from .models import Project, Task, Sprint
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .serializers import ProjectSerializer, EmployeeSerializer, TaskSerializer, SprintListSerializer
+from .serializers import ProjectSerializer, EmployeeSerializer, TaskSerializer, SprintListSerializer, SprintSerializer
 from django.contrib.auth import get_user_model
 from rest_framework import status
 
@@ -73,3 +73,32 @@ def delete_task(request, id):
         return Response({'message': 'Task does not exist !'}, status=status.HTTP_404_NOT_FOUND)
     task.delete()
     return Response({'message': 'Task deleted successfully'})
+
+@api_view(['POST'])
+def add_sprint(request):
+    sprint_ser = SprintSerializer(data=request.data)
+    if sprint_ser.is_valid():
+        sprint_ser.save()
+    else:
+        print(sprint_ser.errors)
+    return Response(sprint_ser.data)
+
+@api_view(['PUT'])
+def update_sprint(request):
+    sprint_data = request.data
+    sprint = Sprint.objects.get(id=sprint_data['id'])
+    serializer = SprintSerializer(sprint, data=sprint_data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    else:
+        return Response(serializer.errors)
+
+@api_view(['DELETE'])
+def delete_sprint(request, id):
+    try:
+        sprint = Sprint.objects.get(pk=id)
+    except Sprint.DoesNotExist:
+        return Response({'message': 'Sprint does not exist !'}, status=status.HTTP_404_NOT_FOUND)
+    sprint.delete()
+    return Response({'message': 'Sprint deleted successfully'})

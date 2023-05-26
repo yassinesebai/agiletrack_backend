@@ -46,3 +46,8 @@ class SprintListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sprint
         fields = ['id', 'name']
+
+class SprintSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sprint
+        fields = '__all__'

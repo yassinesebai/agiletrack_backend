@@ -12,6 +12,9 @@ urlpatterns = [
     path('project/tasks/add', views.add_task, name="add_task"), 
     path('project/tasks/update', views.update_task, name="update_task"),
     path('project/tasks/<int:id>/delete', views.delete_task, name="delete_task"),
+    path('project/sprints/add', views.add_sprint, name="add_sprint"), 
+    path('project/sprints/update', views.update_sprint, name="update_sprint"),
+    path('project/sprints/<int:id>/delete', views.delete_sprint, name="delete_sprint"),
 
     path('users/', views.get_users, name="get_users"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
