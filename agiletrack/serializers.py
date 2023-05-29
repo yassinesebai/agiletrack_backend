@@ -6,7 +6,12 @@ from django.contrib.auth import get_user_model
 class EmployeeSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
-        fields = ['username', 'email', 'password', 'image', 'groups']
+        fields = ['id', 'username', 'email', 'password', 'image', 'groups']
+
+class EmployeeListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = ['id', 'username', 'image']
 
 class ProjectSerializer(serializers.ModelSerializer):
     employees = EmployeeSerializer(many=True)
@@ -38,6 +43,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         return (estimated_end_date - today).days
 
 class TaskSerializer(serializers.ModelSerializer):
+    employee = EmployeeSerializer(many=False)
     class Meta:
         model = Task
         fields = '__all__'
@@ -48,6 +54,12 @@ class SprintListSerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 class SprintSerializer(serializers.ModelSerializer):
+    tasks = serializers.SerializerMethodField()
+
+    def get_tasks(self, obj):
+        tasks = obj.task_set.all()
+        task_serializer = TaskSerializer(tasks, many=True)
+        return task_serializer.data
     class Meta:
         model = Sprint
         fields = '__all__'
