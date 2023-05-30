@@ -14,6 +14,7 @@ urlpatterns = [
     path('project/tasks/update', views.update_task, name="update_task"),
     path('project/tasks/<int:id>/delete', views.delete_task, name="delete_task"),
     path('project/<int:id>/sprints', views.get_sprints, name="get_sprints"),
+    path('sprint/<int:id>/tasks', views.get_sprint_tasks, name="get_sprint_tasks"),
     path('project/sprints/add', views.add_sprint, name="add_sprint"), 
     path('project/sprints/update', views.update_sprint, name="update_sprint"),
     path('project/sprints/<int:id>/delete', views.delete_sprint, name="delete_sprint"),

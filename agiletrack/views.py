@@ -2,7 +2,7 @@ from django.shortcuts import render
 from .models import Project, Task, Sprint
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .serializers import EmployeeListSerializer, ProjectSerializer, EmployeeSerializer, TaskSerializer, SprintListSerializer, SprintSerializer
+from .serializers import ProjectSerializer, EmployeeSerializer, TaskSerializer, SprintListSerializer, SprintSerializer
 from django.contrib.auth import get_user_model
 from rest_framework import status
 
@@ -37,7 +37,7 @@ def get_latest_tasks(request, id):
 def get_team_members(request, id):
     project = Project.objects.get(id=id)
     team = project.employees
-    team_ser = EmployeeListSerializer(team, many=True)
+    team_ser = EmployeeSerializer(team, many=True)
     return Response(team_ser.data)
 
 @api_view(['GET'])
@@ -57,9 +57,10 @@ def add_task(request):
     task_ser = TaskSerializer(data=request.data)
     if task_ser.is_valid():
         task_ser.save()
+        return Response(task_ser.data)
     else:
         print(task_ser.errors)
-    return Response(task_ser.data)
+        return Response(task_ser.errors)
 
 @api_view(['PUT'])
 def update_task(request):
@@ -70,6 +71,7 @@ def update_task(request):
         serializer.save()
         return Response(serializer.data)
     else:
+        print(serializer.errors)
         return Response(serializer.errors)
 
 @api_view(['DELETE'])
@@ -86,6 +88,12 @@ def get_sprints(request, id):
     sprints = Sprint.objects.filter(project_id=id)
     sprints_ser = SprintSerializer(sprints, many=True)
     return Response(sprints_ser.data)
+
+@api_view(['GET'])
+def get_sprint_tasks(request, id):
+    sprint_tasks = Task.objects.filter(sprint_id=id).order_by('id')
+    sprint_tasks_ser = TaskSerializer(sprint_tasks, many=True)
+    return Response(sprint_tasks_ser.data)
 
 @api_view(['POST'])
 def add_sprint(request):

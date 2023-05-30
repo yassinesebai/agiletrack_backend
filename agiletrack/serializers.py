@@ -8,11 +8,6 @@ class EmployeeSerializer(serializers.ModelSerializer):
         model = get_user_model()
         fields = ['id', 'username', 'email', 'password', 'image', 'groups']
 
-class EmployeeListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = get_user_model()
-        fields = ['id', 'username', 'image']
-
 class ProjectSerializer(serializers.ModelSerializer):
     employees = EmployeeSerializer(many=True)
     progress = serializers.SerializerMethodField()
@@ -43,10 +38,18 @@ class ProjectSerializer(serializers.ModelSerializer):
         return (estimated_end_date - today).days
 
 class TaskSerializer(serializers.ModelSerializer):
-    employee = EmployeeSerializer(many=False)
+    employee = EmployeeSerializer(many=False, required=False, allow_null=True, )
     class Meta:
         model = Task
         fields = '__all__'
+        
+    def to_internal_value(self, data):
+        employee_id = data.pop('employee', None)
+        instance = super().to_internal_value(data)
+        if employee_id:
+            employee = get_user_model().objects.get(id=employee_id)
+            instance['employee'] = employee
+        return instance
     
 class SprintListSerializer(serializers.ModelSerializer):
     class Meta:
