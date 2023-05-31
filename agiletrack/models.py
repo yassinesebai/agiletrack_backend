@@ -46,8 +46,8 @@ class Sprint(models.Model):
 class Task(models.Model):
     summary = models.CharField(max_length=200)
     description = models.CharField(max_length=250)
-    start_date = models.DateField(null=True)
-    end_date = models.DateField(null=True)
+    start_date = models.DateTimeField(null=True)
+    end_date = models.DateTimeField(null=True)
     duration = models.IntegerField(null=True)
     status = models.CharField(max_length=20, default="todo")
     priority = models.CharField(max_length=20)
