@@ -100,9 +100,10 @@ def add_sprint(request):
     sprint_ser = SprintSerializer(data=request.data)
     if sprint_ser.is_valid():
         sprint_ser.save()
+        return Response(sprint_ser.data)
     else:
         print(sprint_ser.errors)
-    return Response(sprint_ser.data)
+        return Response(sprint_ser.errors)
 
 @api_view(['PUT'])
 def update_sprint(request):

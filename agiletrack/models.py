@@ -42,18 +42,6 @@ class Sprint(models.Model):
     status = models.CharField(max_length=20, default="todo")
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
-    def calc_duration(end_date, st_date):
-        return (end_date - st_date).days
-
-    def start_sprint(self, est_enddate):
-        self.status = "inprogress"
-        self.start_date = datetime.date.today()
-        self.duration = self.calc_duration(est_enddate, self.start_date)
-
-    def complete_sprint(self):
-        self.status = "done"
-        self.end_date = datetime.date.today()
-        self.duration = self.calc_duration(self.end_date, self.start_date)
 
 class Task(models.Model):
     summary = models.CharField(max_length=200)

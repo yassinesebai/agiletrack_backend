@@ -42,13 +42,17 @@ class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = '__all__'
-        
+
     def to_internal_value(self, data):
         employee_id = data.pop('employee', None)
+        print(employee_id)
         instance = super().to_internal_value(data)
         if employee_id:
             employee = get_user_model().objects.get(id=employee_id)
             instance['employee'] = employee
+        else:
+            instance['employee'] = None
+        print(instance)
         return instance
     
 class SprintListSerializer(serializers.ModelSerializer):
