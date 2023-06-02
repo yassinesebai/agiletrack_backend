@@ -14,7 +14,7 @@ def get_users(request):
 
 @api_view(['GET'])
 def get_projects(request):
-    projects = Project.objects.all()
+    projects = Project.objects.all().order_by('id')
     projects_ser = ProjectSerializer(projects, many=True)
     return Response(projects_ser.data)
 
@@ -26,6 +26,16 @@ def get_project(request, id):
         return Response(project_ser.data)
     except Project.DoesNotExist:
         return Response({'message': 'The project does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+def add_project(request):
+    project_ser = ProjectSerializer(data=request.data)
+    if project_ser.is_valid():
+        project_ser.save()
+        return Response(project_ser.data)
+    else:
+        print(project_ser.errors)
+        return Response(project_ser.errors)    
 
 @api_view(['GET'])
 def get_latest_tasks(request, id):

@@ -9,7 +9,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email', 'password', 'image', 'groups']
 
 class ProjectSerializer(serializers.ModelSerializer):
-    employees = EmployeeSerializer(many=True)
+    employees = EmployeeSerializer(many=True, required=False, allow_null=True)
     progress = serializers.SerializerMethodField()
     done_tasks = serializers.SerializerMethodField()
     total_tasks = serializers.SerializerMethodField()
@@ -19,6 +19,21 @@ class ProjectSerializer(serializers.ModelSerializer):
         model = Project
         fields = '__all__'
 
+    def to_internal_value(self, data):
+        employee_data = data.pop('employees', None)
+        instance = super().to_internal_value(data)
+        if employee_data:
+            employees = []
+            for employee in employee_data:
+                employee_id = employee.get('id')
+                if employee_id:
+                    employee_obj = get_user_model().objects.get(id=employee_id)
+                    employees.append(employee_obj)
+            instance['employees'] = employees
+        else:
+            instance['employees'] = []
+        return instance
+        
     def get_progress(self, obj):
         total_tasks = Task.objects.filter(project=obj).count()
         done_tasks = Task.objects.filter(project=obj, status='done').count()
@@ -38,7 +53,7 @@ class ProjectSerializer(serializers.ModelSerializer):
         return (estimated_end_date - today).days
 
 class TaskSerializer(serializers.ModelSerializer):
-    employee = EmployeeSerializer(many=False, required=False, allow_null=True, )
+    employee = EmployeeSerializer(many=False, required=False, allow_null=True)
     class Meta:
         model = Task
         fields = '__all__'
