@@ -12,8 +12,15 @@ class Project(models.Model):
     estimated_duration = models.IntegerField()
     duration = models.IntegerField(null=True)
     budget = models.DecimalField(max_digits=10, decimal_places=2, null=True)
-    cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     employees = models.ManyToManyField(get_user_model(), through='agiletrack.Team')
+
+    @property
+    def cost(self):
+        tasks = Task.objects.filter(project=self)
+        cost = 0
+        for t in tasks:
+            cost += t.cost
+        return cost
 
     def delete(self, *args, **kwargs):
         # Delete associated Team entries

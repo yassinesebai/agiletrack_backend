@@ -10,6 +10,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
 class ProjectSerializer(serializers.ModelSerializer):
     employees = EmployeeSerializer(many=True, required=False, allow_null=True)
+    cost = serializers.ReadOnlyField()
     progress = serializers.SerializerMethodField()
     done_tasks = serializers.SerializerMethodField()
     total_tasks = serializers.SerializerMethodField()

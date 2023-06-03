@@ -5,7 +5,6 @@ from rest_framework.decorators import api_view
 from .serializers import ProjectSerializer, EmployeeSerializer, TaskSerializer, SprintListSerializer, SprintSerializer
 from django.contrib.auth import get_user_model
 from rest_framework import status
-from .functions import updatePorjectCost
 
 @api_view(['GET'])
 def get_employees(request):
@@ -86,9 +85,6 @@ def get_sprintList(request, id):
 @api_view(['POST'])
 def add_task(request):
     task_ser = TaskSerializer(data=request.data)
-    cost = request.data.get('cost')
-    project_id = request.data.get('project')
-    updatePorjectCost(project_id, cost)
     if task_ser.is_valid():
         task_ser.save()
         return Response(task_ser.data)
@@ -100,9 +96,6 @@ def add_task(request):
 def update_task(request):
     task_data = request.data
     task = Task.objects.get(id=task_data['id'])
-    cost = task_data.get('cost')
-    project_id = task_data.get('project')
-    updatePorjectCost(project_id, cost)
     serializer = TaskSerializer(task, data=task_data)
     if serializer.is_valid():
         serializer.save()
