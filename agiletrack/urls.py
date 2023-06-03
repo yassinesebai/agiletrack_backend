@@ -19,5 +19,7 @@ urlpatterns = [
     path('project/sprints/update', views.update_sprint, name="update_sprint"),
     path('project/sprints/<int:id>/delete', views.delete_sprint, name="delete_sprint"),
 
-    path('users/', views.get_users, name="get_users"),
+    path('projects/add', views.add_project, name="add_project"), 
+
+    path('employees/', views.get_employees, name="get_employees"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

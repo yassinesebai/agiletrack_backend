@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import status
 
 @api_view(['GET'])
-def get_users(request):
+def get_employees(request):
     emps = get_user_model().objects.all()
     emps = EmployeeSerializer(emps, many=True)
     return Response(emps.data)

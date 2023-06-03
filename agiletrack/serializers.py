@@ -1,6 +1,6 @@
 import datetime
 from rest_framework import serializers
-from .models import Project, Task, Sprint
+from .models import Project, Task, Sprint, Team
 from django.contrib.auth import get_user_model
 
 class EmployeeSerializer(serializers.ModelSerializer):
@@ -18,22 +18,29 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = '__all__'
-
+    
     def to_internal_value(self, data):
-        employee_data = data.pop('employees', None)
+        employee_ids = data.pop('employees', None)
         instance = super().to_internal_value(data)
-        if employee_data:
+        if employee_ids:
             employees = []
-            for employee in employee_data:
-                employee_id = employee.get('id')
-                if employee_id:
-                    employee_obj = get_user_model().objects.get(id=employee_id)
-                    employees.append(employee_obj)
+            for employee_id in employee_ids:
+                employee_obj = get_user_model().objects.get(id=int(employee_id))
+                employees.append(employee_obj)
             instance['employees'] = employees
         else:
             instance['employees'] = []
         return instance
-        
+
+    def create(self, validated_data):
+        employees_ids = validated_data.pop('employees', [])
+        project = Project.objects.create(**validated_data)
+
+        for employee_id in employees_ids:
+            Team.objects.create(employee=employee_id, project=project)
+
+        return project
+            
     def get_progress(self, obj):
         total_tasks = Task.objects.filter(project=obj).count()
         done_tasks = Task.objects.filter(project=obj, status='done').count()
