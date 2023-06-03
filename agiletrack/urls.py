@@ -20,6 +20,8 @@ urlpatterns = [
     path('project/sprints/<int:id>/delete', views.delete_sprint, name="delete_sprint"),
 
     path('projects/add', views.add_project, name="add_project"), 
+    path('projects/update', views.update_project, name="update_project"),
+    path('projects/<int:id>/delete', views.delete_project, name="delete_project"),
 
     path('employees/', views.get_employees, name="get_employees"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

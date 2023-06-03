@@ -35,11 +35,26 @@ class ProjectSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         employees_ids = validated_data.pop('employees', [])
         project = Project.objects.create(**validated_data)
-
         for employee_id in employees_ids:
             Team.objects.create(employee=employee_id, project=project)
-
         return project
+    def update(self, instance, validated_data):
+        employees_ids = validated_data.pop('employees', [])
+
+        # Update the project fields
+        for field, value in validated_data.items():
+            setattr(instance, field, value)
+        instance.save()
+
+        # Update the employees associated with the project
+        instance.employees.clear()  # Remove all existing employees
+        for employee_id in employees_ids:
+            try:
+                instance.employees.add(employee_id)
+            except get_user_model().DoesNotExist:
+                pass
+
+        return instance
             
     def get_progress(self, obj):
         total_tasks = Task.objects.filter(project=obj).count()

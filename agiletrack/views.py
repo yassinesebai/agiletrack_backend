@@ -5,6 +5,7 @@ from rest_framework.decorators import api_view
 from .serializers import ProjectSerializer, EmployeeSerializer, TaskSerializer, SprintListSerializer, SprintSerializer
 from django.contrib.auth import get_user_model
 from rest_framework import status
+from .functions import updatePorjectCost
 
 @api_view(['GET'])
 def get_employees(request):
@@ -37,6 +38,26 @@ def add_project(request):
         print(project_ser.errors)
         return Response(project_ser.errors)    
 
+@api_view(['PUT'])
+def update_project(request):
+    project_data = request.data
+    project = Project.objects.get(id=project_data['id'])
+    serializer = ProjectSerializer(project, data=project_data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    else:
+        return Response(serializer.errors)
+
+@api_view(['DELETE'])
+def delete_project(request, id):
+    try:
+        project = Project.objects.get(pk=id)
+    except Project.DoesNotExist:
+        return Response({'message': 'Project does not exist !'}, status=status.HTTP_404_NOT_FOUND)
+    project.delete()
+    return Response({'message': 'Project deleted successfully'})
+
 @api_view(['GET'])
 def get_latest_tasks(request, id):
     latest_tasks = Task.objects.filter(project_id=id).order_by('-id')[:5]
@@ -61,10 +82,13 @@ def get_sprintList(request, id):
     sprints = Sprint.objects.filter(project_id=id).exclude(status="completed")
     sprints_ser = SprintListSerializer(sprints, many=True)
     return Response(sprints_ser.data)
-
+    
 @api_view(['POST'])
 def add_task(request):
     task_ser = TaskSerializer(data=request.data)
+    cost = request.data.get('cost')
+    project_id = request.data.get('project')
+    updatePorjectCost(project_id, cost)
     if task_ser.is_valid():
         task_ser.save()
         return Response(task_ser.data)
@@ -76,6 +100,9 @@ def add_task(request):
 def update_task(request):
     task_data = request.data
     task = Task.objects.get(id=task_data['id'])
+    cost = task_data.get('cost')
+    project_id = task_data.get('project')
+    updatePorjectCost(project_id, cost)
     serializer = TaskSerializer(task, data=task_data)
     if serializer.is_valid():
         serializer.save()
