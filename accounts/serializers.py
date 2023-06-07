@@ -18,15 +18,12 @@ class UserSerializer(serializers.ModelSerializer):
     def validate(self, data):
         if data['password'] != data['password2']:
             raise serializers.ValidationError("Passwords must match.")
-        # Add any additional validations (e.g., email validation)
         return data
 
 
     def create(self, validated_data):
         image = validated_data.pop('image', None)
         validated_data.pop('password2')
-        print("***************************")
-        print(validated_data)
         user = get_user_model().objects.create_user(**validated_data)
         if image:
             user.image = image
