@@ -1,13 +1,9 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 
-class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField()
-    password = serializers.CharField()
-
 class UserSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(style={'input_type': 'password'}, write_only=True)
-
+    
     class Meta:
         model = get_user_model()
         fields = ['username', 'password', 'password2', 'email', 'first_name', 'last_name', 'image', 'job']
@@ -16,7 +12,7 @@ class UserSerializer(serializers.ModelSerializer):
         }
 
     def validate(self, data):
-        if data['password'] != data['password2']:
+        if 'password' in data and data['password'] != data['password2']:
             raise serializers.ValidationError("Passwords must match.")
         return data
 
@@ -29,3 +25,11 @@ class UserSerializer(serializers.ModelSerializer):
             user.image = image
             user.save()
         return user
+    
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
+        instance = super().update(instance, validated_data)
+        if password:
+            instance.set_password(password)
+            instance.save()
+        return instance

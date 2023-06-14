@@ -5,6 +5,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('projects/', views.get_projects, name="get_projects"),
+    path('projects/user/<int:id>', views.get_user_projects, name="get_user_projects"),
     path('project/<int:id>', views.get_project, name="get_project"),
     path('project/<int:id>/latest_tasks', views.get_latest_tasks, name="get_latest_tasks_"),
     path("project/<int:id>/team_members", views.get_team_members, name="get_team_members"),
@@ -14,6 +15,7 @@ urlpatterns = [
     path('project/tasks/update', views.update_task, name="update_task"),
     path('project/tasks/<int:id>/delete', views.delete_task, name="delete_task"),
     path('project/<int:id>/sprints', views.get_sprints, name="get_sprints"),
+    path('project/<int:id>/active_sprint', views.get_active_sprint, name="get_active_sprint"),
     path('sprint/<int:id>/tasks', views.get_sprint_tasks, name="get_sprint_tasks"),
     path('project/sprints/add', views.add_sprint, name="add_sprint"), 
     path('project/sprints/update', views.update_sprint, name="update_sprint"),
@@ -24,4 +26,10 @@ urlpatterns = [
     path('projects/<int:id>/delete', views.delete_project, name="delete_project"),
 
     path('employees/', views.get_employees, name="get_employees"),
+    path('employees/<int:id>/', views.get_employee, name="get_employee"),
+    path('employees/update', views.update_employee, name="update_employee"),
+    path('employees/<int:id>/update_image', views.update_employee_image, name="update_employee_image"),
+
+
+    path('jobs/', views.get_jobs, name="get_jobs"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

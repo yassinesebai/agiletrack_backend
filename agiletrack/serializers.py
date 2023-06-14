@@ -1,12 +1,31 @@
 import datetime
 from rest_framework import serializers
-from .models import Project, Task, Sprint, Team
+from .models import Project, Task, Sprint, Team, Job
 from django.contrib.auth import get_user_model
 
 class EmployeeSerializer(serializers.ModelSerializer):
+    auth_groups = serializers.SerializerMethodField()
+    job = serializers.SerializerMethodField()
+
     class Meta:
         model = get_user_model()
-        fields = ['id', 'username', 'email', 'password', 'image', 'groups']
+        fields = ['id', 'username', 'email', 'password', 'image', 'auth_groups', 'job']
+
+    def get_auth_groups(self, obj):
+        groups = []
+        for g in obj.groups.all():
+            groups.append(g.name)
+        return groups
+    
+    def get_job(self, obj):
+        job = Job.objects.get(id=obj.job.id)
+        job_serializer = JobSerializer(job, many=False)
+        return job_serializer.data
+
+class JobSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Job
+        fields = '__all__'
 
 class ProjectSerializer(serializers.ModelSerializer):
     employees = EmployeeSerializer(many=True, required=False, allow_null=True)

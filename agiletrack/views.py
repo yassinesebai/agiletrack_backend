@@ -1,10 +1,13 @@
 from django.shortcuts import render
-from .models import Project, Task, Sprint
+
+from accounts.serializers import UserSerializer
+from .models import Project, Task, Sprint, Job
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
-from .serializers import ProjectSerializer, EmployeeSerializer, TaskSerializer, SprintListSerializer, SprintSerializer
+from rest_framework.decorators import api_view, parser_classes
+from .serializers import ProjectSerializer, EmployeeSerializer, JobSerializer, TaskSerializer, SprintListSerializer, SprintSerializer
 from django.contrib.auth import get_user_model
 from rest_framework import status
+from rest_framework.parsers import MultiPartParser
 
 @api_view(['GET'])
 def get_employees(request):
@@ -13,8 +16,58 @@ def get_employees(request):
     return Response(emps.data)
 
 @api_view(['GET'])
+def get_employee(request, id):
+    try:
+        user = get_user_model().objects.get(id=id)
+        print(user.username)
+        user_serializer = UserSerializer(user, many=False)
+        return Response(user_serializer.data)
+    except get_user_model().DoesNotExist:
+        return Response({'message': 'The user does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['PUT'])
+def update_employee(request):
+    user = get_user_model().objects.get(id=request.data['id'])
+    data = request.data
+    data.pop('image')
+    if data['password'] == "":
+        data.pop('password')
+        data.pop('password2')
+    serializer = UserSerializer(user, data=data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    else:
+        print(serializer.errors)
+        return Response(serializer.errors)
+
+@api_view(['PUT'])
+@parser_classes([MultiPartParser])
+def update_employee_image(request, id):
+    user = get_user_model().objects.get(id=id)
+    print(request.FILES['image'])
+    user.image = request.FILES['image']
+    user.save()
+    return Response("h")
+    #user.image = request.FILES
+    #print(request.data.pop('image'))
+    # serializer = UserSerializer(user, data=request.data)
+    # if serializer.is_valid():
+    #     serializer.save()
+    #     return Response(serializer.data)
+    # else:
+    #     return Response(serializer.errors)
+
+@api_view(['GET'])
 def get_projects(request):
     projects = Project.objects.all().order_by('id')
+    projects_ser = ProjectSerializer(projects, many=True)
+    return Response(projects_ser.data)
+
+@api_view(['GET'])
+def get_user_projects(request, id):
+    user = get_user_model().objects.get(id=id)
+    projects = Project.objects.filter(employee=user)
     projects_ser = ProjectSerializer(projects, many=True)
     return Response(projects_ser.data)
 
@@ -120,6 +173,14 @@ def get_sprints(request, id):
     return Response(sprints_ser.data)
 
 @api_view(['GET'])
+def get_active_sprint(request, id):
+    try:
+        active_sprint = Sprint.objects.get(project_id=id, status="inprogress")
+        return Response(active_sprint.id)
+    except Sprint.DoesNotExist:
+        return Response(None)
+
+@api_view(['GET'])
 def get_sprint_tasks(request, id):
     sprint_tasks = Task.objects.filter(sprint_id=id).order_by('id')
     sprint_tasks_ser = TaskSerializer(sprint_tasks, many=True)
@@ -154,3 +215,9 @@ def delete_sprint(request, id):
         return Response({'message': 'Sprint does not exist !'}, status=status.HTTP_404_NOT_FOUND)
     sprint.delete()
     return Response({'message': 'Sprint deleted successfully'})
+
+@api_view(['GET'])
+def get_jobs(request):
+    jobs = Job.objects.all()
+    jobs_serializer = JobSerializer(jobs, many=True)
+    return Response(jobs_serializer.data)

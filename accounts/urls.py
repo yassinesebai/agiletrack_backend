@@ -1,12 +1,9 @@
-from django.urls import path
-from accounts.views import register
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
+from django.urls import path, include
+from accounts.views import CustomAuthToken, register
 
 urlpatterns = [
     path('register/', register, name='register'),
-    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('', include('djoser.urls')),
+    path('', include('djoser.urls.authtoken')),
+    path('login/', CustomAuthToken.as_view(), name='token_create'),
 ]
