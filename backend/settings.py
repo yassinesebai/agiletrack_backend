@@ -103,7 +103,7 @@ DATABASES = {
     }
 }
 
-DATABASES["default"] = dj_database_url.parse("postgres://agiletrack_hrm9_user:jXM2rSDKmauUzcbMqNihYkrQchxrYsKV@dpg-cjch42fdb61s73eu36k0-a.oregon-postgres.render.com/agiletrack_hrm9")
+DATABASES["default"] = dj_database_url.parse("postgres://agiletrack_hrm9_user:jXM2rSDKmauUzcbMqNihYkrQchxrYsKV@dpg-cjch42fdb61s73eu36k0-a/agiletrack_hrm9")
 
 
 # Password validation
