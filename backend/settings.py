@@ -60,9 +60,9 @@ MIDDLEWARE = [
 ]
 
 
-CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_ALLOW_ALL = True
 CORS_ORIGIN_WHITELIST = (
-    'http://localhost:4200',
+    'https://agiletrack-frontend.vercel.app',
 )
 CORS_ALLOW_CREDENTIALS = True
 
