@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from datetime import timedelta
+import dj_database_url
 import os
 from pathlib import Path
 
@@ -101,6 +102,8 @@ DATABASES = {
         'PORT': '5432'
     }
 }
+
+DATABASES["default"] = dj_database_url.parse("postgres://agiletrack_hrm9_user:jXM2rSDKmauUzcbMqNihYkrQchxrYsKV@dpg-cjch42fdb61s73eu36k0-a.oregon-postgres.render.com/agiletrack_hrm9")
 
 
 # Password validation

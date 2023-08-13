@@ -18,9 +18,12 @@ class EmployeeSerializer(serializers.ModelSerializer):
         return groups
     
     def get_job(self, obj):
-        job = Job.objects.get(id=obj.job.id)
-        job_serializer = JobSerializer(job, many=False)
-        return job_serializer.data
+        if (obj.job is not None):
+            job = Job.objects.get(id=obj.job.id)
+            job_serializer = JobSerializer(job, many=False)
+            return job_serializer.data
+        else:
+            return None
 
 class JobSerializer(serializers.ModelSerializer):
     class Meta:
@@ -80,7 +83,8 @@ class ProjectSerializer(serializers.ModelSerializer):
         total_tasks = Task.objects.filter(project=obj).count()
         done_tasks = Task.objects.filter(project=obj, status='done').count()
         if total_tasks > 0:
-            return (done_tasks / total_tasks) * 100
+            progress = (done_tasks / total_tasks) * 100
+            return format(progress, '.2f')
         return 0
 
     def get_done_tasks(self, obj):
